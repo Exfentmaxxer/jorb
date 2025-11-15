@@ -7,6 +7,44 @@
 
 **Jorb Core** is a production-ready, enterprise-grade agentic operating system that combines advanced reasoning, persistent memory, and extensible tool execution to power autonomous AI agents.
 
+## ⚡ One-Click Installation
+
+Get up and running in **under 5 minutes**:
+
+### macOS / Linux
+```bash
+chmod +x setup.sh && ./setup.sh
+npm start
+```
+
+### Windows
+```powershell
+powershell -ExecutionPolicy Bypass -File setup.ps1
+npm start
+```
+
+**That's it!** Your agentic OS is now running at:
+- 🌐 API: http://localhost:3000/api/v1
+- 📚 Docs: http://localhost:3000/api/docs
+
+**Quick test:**
+```bash
+# Register a user
+curl -X POST http://localhost:3000/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"test123","name":"Test User"}'
+
+# Create your first intelligent agent task
+curl -X POST http://localhost:3000/api/v1/tasks \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Calculate 2+2*10","priority":5}'
+```
+
+👉 **See [QUICKSTART.md](QUICKSTART.md) for detailed instructions**
+
+---
+
 ## 🌟 Features
 
 ### Core Capabilities
