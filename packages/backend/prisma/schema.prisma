@@ -1,0 +1,243 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  name          String?
+  role          UserRole  @default(USER)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions      Session[]
+  tasks         Task[]
+  memories      Memory[]
+  auditLogs     AuditLog[]
+
+  @@index([email])
+  @@map("users")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  SYSTEM
+}
+
+model Session {
+  id              String   @id @default(uuid())
+  userId          String
+  contextData     Json     @default("{}")
+  status          SessionStatus @default(ACTIVE)
+  startedAt       DateTime @default(now())
+  endedAt         DateTime?
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks           Task[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("sessions")
+}
+
+enum SessionStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  TERMINATED
+}
+
+model Task {
+  id              String      @id @default(uuid())
+  userId          String
+  sessionId       String?
+  title           String
+  description     String?
+  priority        Int         @default(0)
+  status          TaskStatus  @default(PENDING)
+  planData        Json?
+  executionLog    Json        @default("[]")
+  result          Json?
+  error           String?
+  progress        Float       @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  completedAt     DateTime?
+
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session         Session?    @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  steps           TaskStep[]
+  toolExecutions  ToolExecution[]
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("tasks")
+}
+
+enum TaskStatus {
+  PENDING
+  PLANNING
+  EXECUTING
+  PAUSED
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model TaskStep {
+  id              String          @id @default(uuid())
+  taskId          String
+  stepNumber      Int
+  name            String
+  description     String?
+  status          TaskStepStatus  @default(PENDING)
+  input           Json?
+  output          Json?
+  error           String?
+  startedAt       DateTime?
+  completedAt     DateTime?
+
+  task            Task            @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, stepNumber])
+  @@index([taskId])
+  @@map("task_steps")
+}
+
+enum TaskStepStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  SKIPPED
+}
+
+model Memory {
+  id              String      @id @default(uuid())
+  userId          String
+  type            MemoryType
+  content         String
+  embedding       String?     // Stored as JSON array string
+  metadata        Json        @default("{}")
+  score           Float       @default(1.0)
+  accessCount     Int         @default(0)
+  lastAccessedAt  DateTime?
+  expiresAt       DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([score])
+  @@map("memories")
+}
+
+enum MemoryType {
+  SHORT_TERM
+  MID_TERM
+  LONG_TERM
+  SEMANTIC
+  EPISODIC
+  PROCEDURAL
+}
+
+model Tool {
+  id              String      @id @default(uuid())
+  name            String      @unique
+  version         String
+  description     String
+  schema          Json
+  isEnabled       Boolean     @default(true)
+  requiresAuth    Boolean     @default(false)
+  timeout         Int         @default(30000)
+  maxRetries      Int         @default(3)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  executions      ToolExecution[]
+
+  @@index([name])
+  @@index([isEnabled])
+  @@map("tools")
+}
+
+model ToolExecution {
+  id              String              @id @default(uuid())
+  taskId          String?
+  toolId          String
+  input           Json
+  output          Json?
+  status          ToolExecutionStatus @default(PENDING)
+  error           String?
+  attempts        Int                 @default(1)
+  duration        Int?                // milliseconds
+  startedAt       DateTime            @default(now())
+  completedAt     DateTime?
+
+  task            Task?               @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  tool            Tool                @relation(fields: [toolId], references: [id])
+
+  @@index([taskId])
+  @@index([toolId])
+  @@index([status])
+  @@index([startedAt])
+  @@map("tool_executions")
+}
+
+enum ToolExecutionStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  TIMEOUT
+  CANCELLED
+}
+
+model AuditLog {
+  id              String      @id @default(uuid())
+  userId          String?
+  action          String
+  resource        String
+  resourceId      String?
+  metadata        Json        @default("{}")
+  ipAddress       String?
+  userAgent       String?
+  createdAt       DateTime    @default(now())
+
+  user            User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model SystemMetric {
+  id              String      @id @default(uuid())
+  name            String
+  value           Float
+  unit            String?
+  labels          Json        @default("{}")
+  timestamp       DateTime    @default(now())
+
+  @@index([name])
+  @@index([timestamp])
+  @@map("system_metrics")
+}

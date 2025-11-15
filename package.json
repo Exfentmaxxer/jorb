@@ -1,0 +1,32 @@
+{
+  "name": "jorb-core",
+  "version": "1.0.0",
+  "description": "Jorb Core - Enterprise Agentic Operating System",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "mobile/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "migrate": "cd packages/backend && npm run migrate",
+    "seed": "cd packages/backend && npm run seed"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "prettier": "^3.1.0",
+    "turbo": "^1.11.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
