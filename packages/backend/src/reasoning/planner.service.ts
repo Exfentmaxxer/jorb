@@ -89,7 +89,7 @@ Create a detailed execution plan.`;
         response_format: { type: 'json_object' },
       });
 
-      const plan = JSON.parse(response.choices[0].message.content) as ExecutionPlan;
+      const plan = JSON.parse(response.choices[0].message.content || '{}') as ExecutionPlan;
 
       this.logger.log(`Created plan with ${plan.steps.length} steps`);
       return plan;
@@ -199,7 +199,7 @@ Create an adjusted plan to handle this situation.`;
         response_format: { type: 'json_object' },
       });
 
-      const adjustedPlan = JSON.parse(response.choices[0].message.content) as ExecutionPlan;
+      const adjustedPlan = JSON.parse(response.choices[0].message.content || '{}') as ExecutionPlan;
 
       this.logger.log(`Adjusted plan has ${adjustedPlan.steps.length} steps`);
       return adjustedPlan;

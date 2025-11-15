@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { ChromaService } from './chroma.service';
 import { EmbeddingService } from './embedding.service';
-import { MemoryType } from '@prisma/client';
+import { MemoryType } from '../types/prisma-enums';
 
 export interface MemoryCreateInput {
   userId: string;
@@ -62,7 +62,7 @@ export class MemoryService {
         case MemoryType.SEMANTIC:
         case MemoryType.EPISODIC:
         case MemoryType.PROCEDURAL:
-          expiresAt = null; // No expiration
+          expiresAt = undefined; // No expiration
           break;
       }
     }
@@ -142,8 +142,8 @@ export class MemoryService {
     });
 
     // Merge with similarity scores
-    const results = memories.map((memory) => {
-      const chromaResult = filteredResults.find((r) => r.id === memory.id);
+    const results = memories.map((memory: any) => {
+      const chromaResult = filteredResults.find((r: any) => r.id === memory.id);
       return {
         ...memory,
         similarityScore: chromaResult?.distance || 0,
@@ -151,7 +151,7 @@ export class MemoryService {
     });
 
     // Sort by similarity
-    results.sort((a, b) => b.similarityScore - a.similarityScore);
+    results.sort((a: any, b: any) => b.similarityScore - a.similarityScore);
 
     this.logger.log(`Found ${results.length} relevant memories`);
 
@@ -363,8 +363,8 @@ export class MemoryService {
     });
 
     const memoryIds = [
-      ...expiredMemories.map((m) => m.id),
-      ...lowValueMemories.map((m) => m.id),
+      ...expiredMemories.map((m: any) => m.id),
+      ...lowValueMemories.map((m: any) => m.id),
     ];
 
     if (memoryIds.length > 0) {

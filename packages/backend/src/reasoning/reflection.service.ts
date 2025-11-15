@@ -83,7 +83,7 @@ Analyze this execution and provide reflections.`;
         response_format: { type: 'json_object' },
       });
 
-      const reflection = JSON.parse(response.choices[0].message.content) as ReflectionResult;
+      const reflection = JSON.parse(response.choices[0].message.content || '{}') as ReflectionResult;
 
       this.logger.log(
         `Reflection complete. Retry: ${reflection.shouldRetry}, Confidence: ${reflection.confidenceScore}`,
@@ -146,7 +146,7 @@ Analyze these attempts and provide insights.`;
         response_format: { type: 'json_object' },
       });
 
-      const analysis = JSON.parse(response.choices[0].message.content);
+      const analysis = JSON.parse(response.choices[0].message.content || '{}');
 
       return {
         patterns: analysis.patterns || [],
@@ -211,7 +211,7 @@ Identify any errors and provide corrected reasoning if needed.`;
         response_format: { type: 'json_object' },
       });
 
-      const result = JSON.parse(response.choices[0].message.content);
+      const result = JSON.parse(response.choices[0].message.content || '{}');
 
       if (result.hasErrors) {
         this.logger.warn(`Self-correction found ${result.errors.length} errors`);

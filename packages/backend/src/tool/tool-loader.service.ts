@@ -88,7 +88,7 @@ export class ToolLoaderService {
     });
 
     // Filter out tools that are already loaded (built-in tools)
-    const customTools = tools.filter((t) => !this.registry.has(t.name));
+    const customTools = tools.filter((t: any) => !this.registry.has(t.name));
 
     this.logger.log(`Found ${customTools.length} custom tools in database`);
 

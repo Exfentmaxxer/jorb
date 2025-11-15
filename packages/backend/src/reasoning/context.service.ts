@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { MemoryService } from '../memory/memory.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { MemoryType } from '../types/prisma-enums';
 
 export interface ContextBuildInput {
   userId: string;
@@ -68,7 +69,7 @@ export class ContextService {
       userId: input.userId,
       query: input.goal,
       limit: 10,
-      types: ['SEMANTIC', 'EPISODIC', 'PROCEDURAL'],
+      types: [MemoryType.SEMANTIC, MemoryType.EPISODIC, MemoryType.PROCEDURAL],
     });
 
     // Build environment information
@@ -213,7 +214,7 @@ export class ContextService {
 
     // Merge step results
     for (const context of contexts) {
-      if (context.stepResults) {
+      if (context.stepResults && merged.stepResults) {
         merged.stepResults.push(...context.stepResults);
       }
     }

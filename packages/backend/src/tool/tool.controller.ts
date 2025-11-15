@@ -40,7 +40,7 @@ export class ToolController {
   @ApiResponse({ status: 200, description: 'Tool executed successfully' })
   @ApiResponse({ status: 400, description: 'Invalid input' })
   async execute(
-    @Request() req,
+    @Request() req: any,
     @Param('name') name: string,
     @Body() body: { input: any; taskId?: string },
   ) {

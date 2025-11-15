@@ -19,22 +19,22 @@ export class SessionController {
   constructor(private readonly sessionService: SessionService) {}
 
   @Post()
-  async create(@Request() req, @Body() body: { contextData?: Record<string, any> }) {
+  async create(@Request() req: any, @Body() body: { contextData?: Record<string, any> }) {
     return this.sessionService.create(req.user.id, body.contextData);
   }
 
   @Get()
-  async findAll(@Request() req) {
+  async findAll(@Request() req: any) {
     return this.sessionService.findAll(req.user.id);
   }
 
   @Get(':id')
-  async findOne(@Request() req, @Param('id') id: string) {
+  async findOne(@Request() req: any, @Param('id') id: string) {
     return this.sessionService.findOne(req.user.id, id);
   }
 
   @Post(':id/terminate')
-  async terminate(@Request() req, @Param('id') id: string) {
+  async terminate(@Request() req: any, @Param('id') id: string) {
     return this.sessionService.terminate(req.user.id, id);
   }
 }

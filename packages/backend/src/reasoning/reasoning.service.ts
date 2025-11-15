@@ -8,7 +8,7 @@ import { ExecutionService } from './execution.service';
 import { ContextService } from './context.service';
 import { MemoryService } from '../memory/memory.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { TaskStatus, TaskStepStatus } from '@prisma/client';
+import { TaskStatus, TaskStepStatus, MemoryType } from '../types/prisma-enums';
 
 export interface ReasoningInput {
   userId: string;
@@ -231,7 +231,7 @@ export class ReasoningService {
       // Store result in memory
       await this.memoryService.store({
         userId: input.userId,
-        type: 'EPISODIC',
+        type: MemoryType.EPISODIC,
         content: `Completed task: ${input.goal}. Success: ${result.success}`,
         metadata: {
           taskId: input.taskId,

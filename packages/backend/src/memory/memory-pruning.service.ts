@@ -85,7 +85,7 @@ export class MemoryPruningService {
         },
       });
 
-      const usersNeedingCompression = users.filter((u) => u._count.memories > 1000);
+      const usersNeedingCompression = users.filter((u: any) => u._count.memories > 1000);
 
       for (const user of usersNeedingCompression) {
         await this.compressUserMemories(user.id);
@@ -119,7 +119,7 @@ export class MemoryPruningService {
 
     if (candidates.length > 0) {
       // Delete the lowest-value memories
-      const idsToDelete = candidates.map((m) => m.id);
+      const idsToDelete = candidates.map((m: any) => m.id);
       await this.prisma.memory.deleteMany({
         where: { id: { in: idsToDelete } },
       });

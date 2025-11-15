@@ -43,7 +43,7 @@ export class ToolSelectorService {
 
     // If step suggests specific tools, prioritize those
     const candidateTools = input.step.suggestedTools?.length
-      ? enabledTools.filter((t) => input.step.suggestedTools.includes(t.name))
+      ? enabledTools.filter((t) => input.step.suggestedTools?.includes(t.name))
       : enabledTools;
 
     if (candidateTools.length === 0) {
@@ -108,7 +108,7 @@ Select the best tool for this step.`;
         response_format: { type: 'json_object' },
       });
 
-      const selection = JSON.parse(response.choices[0].message.content) as ToolSelectionResult;
+      const selection = JSON.parse(response.choices[0].message.content || '{}') as ToolSelectionResult;
 
       this.logger.log(`Selected tool: ${selection.toolName} (confidence: ${selection.confidence})`);
 
