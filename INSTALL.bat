@@ -164,17 +164,40 @@ REM ============================================================================
 echo [STEP 5/10] Configuring environment...
 echo.
 
+REM Navigate to backend directory
+cd packages\backend
+if %ERRORLEVEL% NEQ 0 (
+    color 0C
+    echo [ERROR] Cannot navigate to backend directory
+    pause
+    exit /b 1
+)
+
 if not exist .env (
-    copy .env.example .env >nul 2>nul
-    if %ERRORLEVEL% EQU 0 (
-        echo [OK] Created .env configuration file
-    ) else (
+    echo [INFO] Creating backend environment configuration...
+
+    REM Check if .env.example exists
+    if not exist .env.example (
         color 0C
-        echo [ERROR] Failed to create .env file
+        echo [ERROR] .env.example file not found in packages\backend
+        echo [INFO] Please ensure .env.example exists in packages\backend directory
+        cd ..\..
         pause
         exit /b 1
     )
+
+    REM Copy .env.example to .env
+    copy .env.example .env >nul 2>nul
+    if %ERRORLEVEL% NEQ 0 (
+        color 0C
+        echo [ERROR] Failed to create .env file
+        cd ..\..
+        pause
+        exit /b 1
+    )
+    echo [OK] Created .env configuration file
     echo.
+
     echo ====================================================================
     echo IMPORTANT: OpenAI API Key Configuration
     echo ====================================================================
@@ -187,27 +210,52 @@ if not exist .env (
     echo   2. Press Enter to skip and add it manually later
     echo.
     set /p OPENAI_KEY="Enter your OpenAI API key (or press Enter to skip): "
+
     if not "!OPENAI_KEY!"=="" (
-        powershell -Command "(Get-Content .env) -replace 'OPENAI_API_KEY=.*', 'OPENAI_API_KEY=!OPENAI_KEY!' | Set-Content .env"
-        echo [OK] OpenAI API key configured successfully
+        echo.
+        echo [INFO] Configuring OpenAI API key...
+        powershell -Command "(Get-Content .env) -replace 'OPENAI_API_KEY=.*', 'OPENAI_API_KEY=!OPENAI_KEY!' | Set-Content .env" 2>nul
+        if !ERRORLEVEL! EQU 0 (
+            echo [OK] OpenAI API key configured successfully
+        ) else (
+            echo [WARNING] Failed to auto-configure API key
+            echo [INFO] Please manually edit packages\backend\.env and set your API key
+        )
         echo.
     ) else (
+        echo.
         echo [WARNING] Skipped API key configuration
-        echo [INFO] Edit .env file and add: OPENAI_API_KEY=sk-your-key-here
+        echo [INFO] To add it later, edit: packages\backend\.env
+        echo [INFO] Set: OPENAI_API_KEY=sk-your-key-here
         echo.
     )
 
     REM Generate random JWT secret
     echo [INFO] Generating secure JWT secret...
     for /f %%i in ('powershell -Command "[guid]::NewGuid().ToString() + [guid]::NewGuid().ToString()"') do set JWT_SECRET=%%i
-    powershell -Command "(Get-Content .env) -replace 'JWT_SECRET=.*', 'JWT_SECRET=!JWT_SECRET!' | Set-Content .env"
-    echo [OK] JWT secret configured
+    if "!JWT_SECRET!"=="" (
+        echo [WARNING] Failed to generate JWT secret, using default
+        set JWT_SECRET=default-jwt-secret-please-change-in-production
+    )
+
+    powershell -Command "(Get-Content .env) -replace 'JWT_SECRET=.*', 'JWT_SECRET=!JWT_SECRET!' | Set-Content .env" 2>nul
+    if !ERRORLEVEL! EQU 0 (
+        echo [OK] JWT secret configured
+    ) else (
+        echo [WARNING] Failed to auto-configure JWT secret
+        echo [INFO] Please manually edit packages\backend\.env
+    )
     echo.
 ) else (
-    echo [OK] .env file already exists
+    echo [OK] .env file already exists in packages\backend
     echo [INFO] Using existing configuration
     echo.
 )
+
+REM Return to root directory
+cd ..\..
+echo [OK] Environment configuration complete
+echo.
 
 REM ============================================================================
 REM STEP 6: START DOCKER SERVICES
