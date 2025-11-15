@@ -148,7 +148,7 @@ if %ERRORLEVEL% NEQ 0 (
     cd ..\..
 ) else (
     call npm install --loglevel=error
-    if %ERRORLEVEL! NEQ 0 (
+    if !ERRORLEVEL! NEQ 0 (
         echo [WARNING] Failed to install landing page dependencies
         echo [INFO] Continuing with backend installation...
     ) else (
@@ -260,7 +260,7 @@ echo.
 REM ============================================================================
 REM STEP 6: START DOCKER SERVICES
 REM ============================================================================
-if %DOCKER_AVAILABLE% EQU 1 (
+if !DOCKER_AVAILABLE! EQU 1 (
     echo [STEP 6/10] Starting database services with Docker...
     echo [INFO] Starting PostgreSQL, Redis, and ChromaDB...
     echo.
@@ -326,7 +326,7 @@ echo.
 REM ============================================================================
 REM STEP 8: INITIALIZE DATABASE
 REM ============================================================================
-if %DOCKER_AVAILABLE% EQU 1 (
+if !DOCKER_AVAILABLE! EQU 1 (
     echo [STEP 8/10] Initializing database schema...
     echo [INFO] Creating tables and applying migrations...
     echo.
@@ -413,7 +413,7 @@ if not exist ".env" (
     set INSTALL_OK=0
 )
 
-if %INSTALL_OK% EQU 0 (
+if !INSTALL_OK! EQU 0 (
     color 0C
     echo.
     echo [ERROR] Installation verification failed
@@ -456,7 +456,7 @@ echo   ✓ Database layer (Prisma + PostgreSQL)
 echo   ✓ Memory system (ChromaDB)
 echo   ✓ Reasoning engine
 echo   ✓ Tool/plugin system
-if %DOCKER_AVAILABLE% EQU 1 (
+if !DOCKER_AVAILABLE! EQU 1 (
     echo   ✓ Database services (PostgreSQL, Redis, ChromaDB)
 )
 echo.
@@ -479,7 +479,7 @@ if "!OPENAI_KEY!"=="" (
     echo   Edit .env and set: OPENAI_API_KEY=sk-your-key-here
     echo.
 )
-if %DOCKER_AVAILABLE% EQU 0 (
+if !DOCKER_AVAILABLE! EQU 0 (
     echo ⚠ REMINDER: Setup these databases manually:
     echo   - PostgreSQL, Redis, ChromaDB
     echo   - Update .env with connection strings
